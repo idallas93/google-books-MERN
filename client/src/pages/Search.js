@@ -5,53 +5,53 @@ import API from "../utils/API";
 import SearchForm from "../components/SearchForm";
 import BookList from "../components/BookList";
 import SearchResults from "../components/SearchResults";
-
+import Button from "../components/Button";
 
 function Search() {
-  const [books, setBooks] = useState([]);
-  const [bookSearch, setBookSearch] = useState("");
+  const [search, setSearch] = useState("Lord of the Rings");
+  const [title, setTitle] = useState("");
+  const [url, setUrl] = useState("");
   const [error, setError] = useState("");
 
-  const handleInputChange = event => {
-    // Destructure the name and value properties off of event.target
-    // Update the appropriate state
-    const { value } = event.target;
-    setBookSearch(value);
-  };
 
-  const handleFormSubmit = event => {
-    // When the form is submitted, prevent its default behavior, get recipes update the recipes state
-    event.preventDefault();
-    API.getGoogleBooks(bookSearch)
-      .then(res => setBooks(res.data))
-      .catch(err => console.log(err));
-  };
+useEffect(() => {
+  if(!search) {
+    return;
+  }
 
+  API.getGoogleBooks(search)
+  .then(res => {
+    if (res.data.length === 0) {
+      throw new Error("No results found.");
+    }
+    if (res.data.status === "error") {
+      throw new Error(res.data.message);
+    }
+    setTitle(res.data.items.volumeInfo.title);
+    setUrl(res.data);
+  })
+  .catch(err => setError(err));
+}, [search]);
 
-  return (
-    <Container fluid>
+const handleInputChange = event => {
+setSearch(event.target.value);
+};
+
+return (
+  <div>
+    <Container style={{ minHeight: "100vh" }}>
+      <h1 className="text-center">Search For Anything on Google Books</h1>
+     
       <SearchForm
-        bookSearch={bookSearch}
         handleInputChange={handleInputChange}
-        handleFormSubmit={handleFormSubmit}
+        results={search}
       />
-      <Row>
-          <Col size="xs-12">
-            {!books.length ? (
-              <h1 className="text-center">No books to display</h1>
-            ) : (
-              <BookList
-              key={books.title}
-              title={books.title}
-              href={books.href}
-              ingredients={books.ingredients}
-              thumbnail={books.thumbnail}>
-              </BookList>
-            )}
-          </Col>
-        </Row>
+            <SearchResults title={title}/>
+
+      {/* <SearchResults title={title} url={url} /> */}
     </Container>
-  );
+  </div>
+);
 }
 
 export default Search;
