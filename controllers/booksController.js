@@ -1,3 +1,4 @@
+const axios = require("axios");
 const db = require("../models");
 
 // Defining methods for the booksController
@@ -21,6 +22,19 @@ module.exports = {
       .then(dbModel => res.json(dbModel))
       .catch(err => res.status(422).json(err));
   },
+
+  search: function(req, res) {
+  //  query googlebooks api
+  axios.get(`https://www.googleapis.com/books/v1/volumes?q=${req.body.title}`)
+    .then(books => {
+      res.json(books.data.items)
+      console.log(books.data.items)
+    })
+
+  // return book object as a response 
+  },
+
+
   update: function(req, res) {
     db.Book
       .findOneAndUpdate({ _id: req.params.id }, req.body)

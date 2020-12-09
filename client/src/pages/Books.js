@@ -20,9 +20,10 @@ function Books() {
   // Loads all books and sets them to books
   function loadBooks() {
     API.getBooks()
-      .then(res => 
+      .then(res => {
         setBooks(res.data)
-      )
+        console.log(res.data)
+      })
       .catch(err => console.log(err));
   };
 
@@ -44,6 +45,7 @@ function Books() {
   function handleFormSubmit(event) {
     event.preventDefault();
     if (formObject.title && formObject.author) {
+      console.log(formObject.title)
       API.saveBook({
         title: formObject.title,
         author: formObject.author,
